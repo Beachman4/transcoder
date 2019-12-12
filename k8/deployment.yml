@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: transcoding
+  namespace: ns-aylon-armstrong
+  labels:
+    app: transcoding
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      protocol: TCP
+      name: healthz-port
+  selector:
+    app: transcoding
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  namespace: ns-aylon-armstrong
+  name: transcoding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transcoding
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: transcoding
+    spec:
+      containers:
+      - name: transcoding
+        image: gcr.io/engineering-sandbox-228018/transcoding:${TAG}
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          timeoutSeconds: 1
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          timeoutSeconds: 1

@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nfs-bucket-server
+spec:
+  replicas: 1
+  selector:
+    role: nfs-bucket-server
+  template:
+    metadata:
+      labels:
+        role: nfs-bucket-server
+    spec:
+      volumes:
+      - name: sa-transcoding-bucket
+        secret:
+          secretName: sa-transcoding-bucket
+      containers:
+      - name: nfs-bucket-server
+        image: anderselton/nfs-bucket-server:latest
+        env:
+        - name: BUCKET
+          value: "rtmp-hls-transcoding"
+        ports:
+        - name: nfs
+          containerPort: 2049
+        - name: mountd
+          containerPort: 20048
+        - name: rpcbind
+          containerPort: 111
+        volumeMounts:
+        - name: sa-transcoding-bucket
+          mountPath: "/accounts"
+          readOnly: true
+        securityContext:
+          privileged: true
