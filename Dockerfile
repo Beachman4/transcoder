@@ -10,7 +10,9 @@ RUN go get -d ./...
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o transcoding
 
-FROM jrottenberg/ffmpeg:4.1-scratch
+FROM jrottenberg/ffmpeg:4.1-alpine
+
+RUN apk add bash
 
 WORKDIR /app
 
@@ -18,6 +20,6 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/src/github.com/flocasts/transcoding/transcoding ./transcoding
 COPY --from=builder /go/src/github.com/flocasts/transcoding/hls ./hls
 
-EXPOSE 1935
+EXPOSE 8080
 
 ENTRYPOINT ["/app/transcoding"]
