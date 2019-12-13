@@ -5,7 +5,7 @@
 <body>
 
 <video id='video'  class="video-js vjs-default-skin" width="1280" height="720" controls>
-    <source type="application/x-mpegURL" src="http://35.238.243.208:8080/hls/index.m3u8">
+    <source type="application/x-mpegURL" src="http://35.238.243.208:8080/hls/test/index.m3u8">
 </video>
 
 
@@ -17,6 +17,18 @@
 
 <script>
     var player = videojs('video');
+    player.ready(function() {
+        var myPlayer = this;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const stream = urlParams.get('stream');
+
+        if (stream) {
+            const url = "http://35.238.243.208:8080/hls/" + stream + "/index.m3u8"
+
+            myPlayer.src({type: "application/x-mpegURL", src: url})
+        }
+    })
     player.play();
 </script>
 
